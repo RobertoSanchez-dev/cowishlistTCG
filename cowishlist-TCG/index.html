@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B2540">
+<title>Lista TCG · Evento Madrid</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B2540; --ink-2:#4A5575; --paper:#F3F5FA; --surface:#FFFFFF; --line:#DCE1EC;
+  --energy:#F5C400; --good:#15884A; --good-bg:#E3F5EA; --meh:#A86800; --meh-bg:#FFF3D6;
+  --bad:#C63A3A; --bad-bg:#FBE4E4; --radius-s:8px; --radius-l:18px;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ink:#E8ECF6; --ink-2:#A3ADC7; --paper:#11172A; --surface:#1B2340; --line:#2E3858;
+    --good-bg:#12382A; --meh-bg:#3A2E0E; --bad-bg:#431C22; --good:#4CD38A; --meh:#F2B640; --bad:#FF7A7A; }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 var(--body);-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--energy);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 96px}
+
+header.top{background:#1B2540;color:#fff;padding:18px 16px 14px}
+header.top .wrap{padding-bottom:0}
+.titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font:800 1.6rem/1.1 var(--display);margin:0;letter-spacing:-.01em}
+.sync{font-size:.82rem;opacity:.85;margin-top:3px;display:flex;align-items:center;gap:6px;background:none;border:0;color:#fff;padding:0}
+.sync i{width:8px;height:8px;border-radius:50%;background:#8893AE;display:inline-block}
+.sync.ok i{background:#4CD38A} .sync.busy i{background:var(--energy)} .sync.err i{background:#FF6B6B}
+.icon-btn{background:rgba(255,255,255,.12);border:0;color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.2rem;flex:none}
+.budget{margin-top:14px}
+.budget-row{display:flex;justify-content:space-between;font-size:.95rem;opacity:.92}
+.budget-bar{height:10px;background:rgba(255,255,255,.18);border-radius:99px;margin-top:6px;overflow:hidden}
+.budget-bar span{display:block;height:100%;background:var(--energy);border-radius:99px;transition:width .3s}
+.budget-bar.over span{background:#FF6B6B}
+
+.tabs{display:flex;gap:6px;margin:16px 0 12px;background:var(--surface);padding:5px;border-radius:99px;border:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tabs button{flex:1;border:0;background:none;padding:10px;border-radius:99px;font-weight:700;color:var(--ink-2)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+
+.toolbar{display:flex;gap:8px;margin-bottom:12px}
+.search{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius-s);padding:12px 14px;font-size:1rem;min-width:0}
+.btn{border:0;border-radius:var(--radius-s);padding:12px 16px;font-weight:700;background:var(--ink);color:var(--paper);text-decoration:none;text-align:center}
+.btn.secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.energy{background:var(--energy);color:#1B2540}
+.btn.danger{background:none;color:var(--bad);border:1px solid var(--bad)}
+.btn.small{padding:8px 12px;font-size:.9rem}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);margin-bottom:10px;overflow:hidden}
+.item.done{opacity:.6}
+.item-head{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;width:100%;text-align:left;background:none;border:0}
+.prio{width:6px;align-self:stretch;border-radius:3px;flex:none}
+.prio.alta{background:var(--bad)} .prio.media{background:var(--energy)} .prio.baja{background:var(--line)}
+.item-main{flex:1;min-width:0}
+.item-col{font:800 1.15rem/1.2 var(--display);display:block}
+.item-type{font:600 1rem/1.3 var(--display);color:var(--ink-2);display:block;margin-top:2px}
+.item-meta{font-size:.85rem;color:var(--ink-2);margin-top:2px}
+.item-price{text-align:right;flex:none}
+.item-price b{font:800 1.25rem/1 var(--display);display:block}
+.item-price small{font-size:.8rem;color:var(--ink-2)}
+.tags{margin-top:6px}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--paper);border:1px solid var(--line);margin:0 4px 4px 0}
+.tag.ok{background:var(--good-bg);color:var(--good);border-color:transparent}
+.tag.warn{background:var(--meh-bg);color:var(--meh);border-color:transparent}
+.empty{text-align:center;padding:40px 16px;color:var(--ink-2)}
+.empty p{margin:0 0 14px}
+
+.check{padding:0 16px 16px;border-top:1px dashed var(--line)}
+.price-input{display:flex;align-items:center;gap:8px;margin-top:14px}
+.price-input input{flex:1;font:800 2rem/1 var(--display);padding:10px 14px;border:2px solid var(--line);border-radius:var(--radius-s);background:var(--paper);min-width:0}
+.price-input span{font:800 2rem var(--display);color:var(--ink-2)}
+.verdict{margin-top:12px;padding:16px;border-radius:var(--radius-s);background:var(--paper)}
+.verdict strong{font:800 1.5rem/1.15 var(--display);display:block}
+.verdict p{margin:6px 0 0;font-size:.95rem}
+.verdict.good{background:var(--good-bg);color:var(--good)}
+.verdict.meh{background:var(--meh-bg);color:var(--meh)}
+.verdict.bad{background:var(--bad-bg);color:var(--bad)}
+.refs{font-size:.9rem;color:var(--ink-2);margin-top:12px}
+.refs table{width:100%;border-collapse:collapse}
+.refs td{padding:4px 0;border-bottom:1px solid var(--line)}
+.refs td:last-child{text-align:right;font-weight:700;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row > *{flex:1 1 140px}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:.88rem;font-weight:700;color:var(--ink-2);margin-bottom:4px}
+.field input,.field select,.field textarea,.stand{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-s);padding:10px 12px}
+h3{font:600 1rem var(--display);margin:16px 0 6px}
+.linkish{background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;font-size:.88rem}
+
+dialog{border:0;border-radius:var(--radius-l);padding:0;width:min(560px,calc(100% - 24px));max-height:calc(100% - 32px);background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(10,14,30,.55)}
+.dlg{padding:20px}
+.dlg h2{font:800 1.4rem var(--display);margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.price-row{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center}
+.price-row input{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius-s);padding:9px 10px;min-width:0}
+.x{border:0;background:none;color:var(--bad);font-size:1.3rem;width:34px}
+.dlg-actions{display:flex;gap:8px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+.hint{font-size:.85rem;color:var(--ink-2);margin:4px 0 10px}
+.code-box{background:var(--paper);border:1px dashed var(--line);border-radius:var(--radius-s);padding:12px;margin-bottom:10px}
+.code-box b{font:800 1.2rem var(--display);word-break:break-all}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="titlebar">
+      <div>
+        <h1>Lista del evento 🎴</h1>
+        <button class="sync" id="syncStatus" hidden><i></i><span></span></button>
+      </div>
+      <button class="icon-btn" id="openSettings" aria-label="Ajustes y lista compartida">⚙</button>
+    </div>
+    <div class="budget">
+      <div class="budget-row"><span id="spentTxt">Gastado 0 €</span><span id="budgetTxt">Presupuesto sin definir</span></div>
+      <div class="budget-bar" id="budgetBar"><span style="width:0"></span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="prep">Preparar</button>
+    <button role="tab" aria-selected="false" data-tab="event">En el evento</button>
+  </div>
+  <div class="toolbar">
+    <input class="search" id="q" type="search" placeholder="Buscar colección o tipo…" autocomplete="off">
+    <button class="btn" id="addBtn">Añadir</button>
+  </div>
+  <div id="list"></div>
+</main>
+
+<dialog id="prodDlg">
+  <form class="dlg" id="prodForm" method="dialog">
+    <h2 id="prodTitle">Nuevo producto</h2>
+    <label class="field"><span>Colección</span><input name="coleccion" required placeholder="Ej. Evoluciones Prismáticas" list="colList"></label>
+    <datalist id="colList"></datalist>
+    <div class="grid2">
+      <label class="field"><span>Tipo</span>
+        <select name="tipo" id="tipoSel">
+          <option>Sobre</option><option>Blister</option><option>Booster bundle</option><option>ETB</option>
+          <option>Booster box</option><option>Lata</option><option>Colección especial</option><option>Carta suelta</option><option>Otro</option>
+        </select></label>
+      <label class="field"><span>Idioma</span>
+        <select name="idioma"><option>ES</option><option>EN</option><option>JP</option><option>Otro</option></select></label>
+    </div>
+    <label class="field"><span>Detalle (opcional)</span><input name="nombre" placeholder="Ej. edición Pokémon Center, blister de 3 sobres…"></label>
+    <div class="grid2">
+      <label class="field"><span>Sobres que trae</span><input name="sobres" type="number" min="0" inputmode="numeric"></label>
+      <label class="field"><span>Cuántos queremos</span><input name="cantidad" type="number" min="1" value="1" inputmode="numeric"></label>
+    </div>
+    <label class="field"><span>Prioridad</span>
+      <select name="prioridad"><option value="alta">Alta, a por ello</option><option value="media" selected>Media</option><option value="baja">Baja, si hay chollo</option></select></label>
+
+    <h3>Precios de referencia online</h3>
+    <p class="hint">Pon el envío que pagarías comprando solo esto, así la comparación es justa. <a id="cmLink" target="_blank" rel="noopener">Buscar en Cardmarket</a></p>
+    <div class="price-row" style="font-size:.8rem;font-weight:700;color:var(--ink-2)"><span>Tienda</span><span>Precio €</span><span>Envío €</span><span></span></div>
+    <div id="priceRows"></div>
+    <button type="button" class="btn secondary small" id="addPrice">Añadir tienda</button>
+    <datalist id="storeList"><option>Cardmarket</option><option>Amazon</option><option>Tienda local</option><option>Wallapop</option></datalist>
+
+    <label class="field" style="margin-top:14px"><span>Notas</span><textarea name="notas" rows="2" placeholder="Ej. solo si está sellada con film original"></textarea></label>
+    <div class="dlg-actions">
+      <button type="button" class="btn danger small" id="delProd" hidden>Borrar</button>
+      <span style="flex:1"></span>
+      <button type="button" class="btn secondary" id="cancelProd">Cancelar</button>
+      <button type="submit" class="btn">Guardar producto</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="setDlg">
+  <div class="dlg">
+    <h2>Ajustes</h2>
+    <h3 style="margin-top:0">Lista compartida</h3>
+    <div id="shareBox"></div>
+
+    <h3>Compras</h3>
+    <label class="field"><span>Presupuesto total para el evento (€)</span><input id="setBudget" type="number" min="0" inputmode="decimal"></label>
+    <label class="field"><span>Margen aceptable sobre el mejor precio online (%)</span><input id="setTol" type="number" min="0" max="50" inputmode="decimal"></label>
+    <p class="hint">Por encima del mejor precio online pero dentro de este margen sale en amarillo: lo tienes en mano, sin esperar ni arriesgar el envío.</p>
+    <label class="field"><span>Avisar si un precio tiene más de (días)</span><input id="setStale" type="number" min="1" inputmode="numeric"></label>
+
+    <h3>Copia de seguridad</h3>
+    <div class="row">
+      <button class="btn secondary" id="exportBtn">Exportar</button>
+      <button class="btn secondary" id="importBtn">Importar</button>
+      <button class="btn secondary" id="copyBtn">Copiar como texto</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <div class="dlg-actions">
+      <button class="btn danger small" id="wipeBtn">Borrar todo</button>
+      <span style="flex:1"></span>
+      <button class="btn secondary" id="closeSettings">Cerrar</button>
+      <button class="btn" id="saveSettings">Guardar ajustes</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const KEY = 'tcg-evento-v1';
+const CODE_KEY = 'tcg-evento-codigo';
+const PACKS = {'Sobre':1,'Blister':1,'Booster bundle':6,'ETB':9,'Booster box':36,'Lata':4,'Colección especial':'','Carta suelta':0,'Otro':''};
+const CM_TERMS = {'Sobre':'Booster','Blister':'Blister','Booster bundle':'Booster Bundle','ETB':'Elite Trainer Box','Booster box':'Booster Box','Lata':'Tin','Colección especial':'Collection','Carta suelta':'','Otro':''};
+const DAY = 86400000;
+let db = load();
+let code = '';
+try{ code = localStorage.getItem(CODE_KEY) || ''; }catch(e){}
+let tab = 'prep';
+let openId = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur = n => (Math.round(n*100)/100).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+const num = v => { const n = parseFloat(String(v).replace(',','.')); return isNaN(n) ? null : n; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+function blank(){ return {items:[], budget:0, tol:5, stale:7, ajustesFecha:0}; }
+function load(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!d || !Array.isArray(d.items)) return blank();
+  // Migración desde la versión 1
+  d.items.forEach(p => {
+    p.compras = (p.compras||[]).map(c => ({id:c.id||uid(), ...c}));
+    p.vistos = (p.vistos||[]).map(v => ({id:v.id||uid(), ...v}));
+    if(!p.coleccion){ p.coleccion = p.nombre; p.nombre = ''; }
+    if(!p.preciosFecha) p.preciosFecha = p.actualizado || Date.now();
+  });
+  return {...blank(), ...d};
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){ toast('No se pudo guardar en este navegador'); } }
+function changed(){ save(); render(); scheduleSync(); }
+
+/* ---------- Fusión (igual que en el servidor) ---------- */
+function mergeEntries(x=[], y=[]){
+  const m = new Map();
+  for(const e of [...x, ...y]){ if(!e || !e.id) continue; const o = m.get(e.id); if(!o) m.set(e.id, {...e}); else if(e.borrado) o.borrado = true; }
+  return [...m.values()];
+}
+function merge(a={}, b={}){
+  const m = new Map();
+  for(const it of [...(a.items||[]), ...(b.items||[])]){
+    if(!it || !it.id) continue;
+    const o = m.get(it.id);
+    if(!o){ m.set(it.id, {...it}); continue; }
+    const newer = (it.actualizado||0) > (o.actualizado||0) ? it : o;
+    m.set(it.id, {...newer, compras:mergeEntries(o.compras, it.compras), vistos:mergeEntries(o.vistos, it.vistos)});
+  }
+  const s = (b.ajustesFecha||0) > (a.ajustesFecha||0) ? b : a;
+  return {items:[...m.values()], budget:s.budget||0, tol:s.tol ?? 5, stale:s.stale ?? 7, ajustesFecha:s.ajustesFecha||0};
+}
+
+/* ---------- Sincronización ---------- */
+let syncing = false, again = false, syncTimer = null, lastOk = 0;
+function setStatus(state, text){
+  const el = $('#syncStatus');
+  el.hidden = !code;
+  el.className = 'sync ' + state;
+  el.querySelector('span').textContent = text;
+}
+function scheduleSync(){ if(!code) return; clearTimeout(syncTimer); syncTimer = setTimeout(sync, 500); }
+async function sync(){
+  if(!code) return;
+  if(syncing){ again = true; return; }
+  syncing = true;
+  setStatus('busy', 'Sincronizando…');
+  try{
+    const r = await fetch('/api/sync', {method:'POST', headers:{'content-type':'application/json','x-lista':code}, body:JSON.stringify(db)});
+    if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || 'Error ' + r.status);
+    const remote = await r.json();
+    const before = JSON.stringify(db);
+    db = merge(db, remote);
+    save();
+    if(JSON.stringify(db) !== before) render();
+    lastOk = Date.now();
+    setStatus('ok', 'Lista compartida al día');
+  }catch(e){
+    setStatus('err', 'No se pudo sincronizar, reintentando');
+  }finally{
+    syncing = false;
+    if(again){ again = false; sync(); }
+  }
+}
+setInterval(() => { if(code && document.visibilityState === 'visible') sync(); }, 12000);
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') sync(); });
+$('#syncStatus').onclick = () => sync();
+
+function newCode(){
+  const words = ['charizard','pikachu','eevee','gengar','snorlax','mew','lucario','umbreon','dragonite','mimikyu'];
+  const r = crypto.getRandomValues(new Uint32Array(2));
+  return words[r[0] % words.length] + '-' + r[1].toString(36).padStart(7,'0');
+}
+function renderShare(){
+  const box = $('#shareBox');
+  if(code){
+    box.innerHTML = `<div class="code-box"><span class="hint" style="margin:0">Código de vuestra lista</span><br><b>${esc(code)}</b></div>
+      <p class="hint">Tu novia solo tiene que abrir la web, ir a Ajustes y escribir este mismo código. Cualquier persona con el código puede ver y editar la lista.</p>
+      <div class="row"><button class="btn secondary" id="copyCode">Copiar código</button><button class="btn danger" id="leaveList">Dejar de compartir en este móvil</button></div>`;
+    $('#copyCode').onclick = async () => { try{ await navigator.clipboard.writeText(code); toast('Código copiado'); }catch(e){ toast('No se pudo copiar'); } };
+    $('#leaveList').onclick = () => {
+      if(!confirm('Este móvil dejará de sincronizarse. La lista se queda guardada aquí igualmente.')) return;
+      code = ''; try{ localStorage.removeItem(CODE_KEY); }catch(e){} setStatus('', ''); renderShare();
+    };
+  } else {
+    box.innerHTML = `<p class="hint">Crea una lista compartida en un móvil y únete desde el otro con el mismo código. Lo que ya tengáis cada uno se junta.</p>
+      <div class="row"><button class="btn energy" id="createList">Crear lista compartida</button></div>
+      <div class="row"><input class="stand" id="joinCode" placeholder="Código de la otra persona" autocapitalize="off" autocomplete="off"><button class="btn secondary" id="joinList">Unirme</button></div>`;
+    $('#createList').onclick = () => connect(newCode());
+    $('#joinList').onclick = () => {
+      const c = $('#joinCode').value.trim().toLowerCase();
+      if(c.length < 8){ toast('El código tiene al menos 8 caracteres'); return; }
+      connect(c);
+    };
+  }
+}
+async function connect(c){
+  code = c;
+  try{ localStorage.setItem(CODE_KEY, code); }catch(e){}
+  renderShare();
+  await sync();
+  toast(lastOk ? 'Lista compartida conectada' : 'Guardado el código, se sincronizará cuando haya conexión');
+}
+
+/* ---------- Cálculos ---------- */
+const live = arr => (arr||[]).filter(x => !x.borrado);
+const items = () => db.items.filter(p => !p.borrado);
+function best(p){
+  const opts = (p.precios||[]).filter(x => x.precio != null).map(x => ({...x, total: x.precio + (x.envio||0)}));
+  return opts.length ? opts.sort((a,b)=>a.total-b.total)[0] : null;
+}
+function limit(p){ const b = best(p); return b ? b.total * (1 + (db.tol||0)/100) : null; }
+function bought(p){ return live(p.compras).reduce((s,c)=>s+c.cantidad,0); }
+function spent(){ return items().reduce((s,p)=>s+live(p.compras).reduce((a,c)=>a+c.precio*c.cantidad,0),0); }
+function ageDays(p){ return p.preciosFecha ? Math.floor((Date.now()-p.preciosFecha)/DAY) : null; }
+function cmUrl(p){
+  const q = [p.coleccion, CM_TERMS[p.tipo]].filter(Boolean).join(' ');
+  return 'https://www.cardmarket.com/es/Pokemon/Products/Search?searchString=' + encodeURIComponent(q);
+}
+
+function verdict(p, price){
+  const b = best(p);
+  if(price == null) return null;
+  if(!b) return {cls:'', title:'Sin precio de referencia', text:'Añade al menos un precio online para poder comparar.'};
+  const diff = b.total - price;
+  const perPack = p.sobres ? ` Sale a ${eur(price/p.sobres)} por sobre (online ${eur(b.total/p.sobres)}).` : '';
+  if(diff >= 0) return {cls:'good', title: diff < 0.5 ? 'Compra, mismo precio y sin envío' : `Compra, ahorras ${eur(diff)}`, text:`Mejor online: ${eur(b.total)} en ${b.tienda}.${perPack}`};
+  if(price <= limit(p)) return {cls:'meh', title:`Casi, ${eur(-diff)} más caro`, text:`Dentro de tu margen del ${db.tol}%. Compensa si lo queréis ya o si hay regateo.${perPack}`};
+  return {cls:'bad', title:`No compensa, ${eur(-diff)} más caro`, text:`Online lo tenéis a ${eur(b.total)} en ${b.tienda}. Intenta bajarlo a ${eur(b.total)} o menos.${perPack}`};
+}
+
+/* ---------- Render ---------- */
+function renderBudget(){
+  const s = spent();
+  $('#spentTxt').textContent = 'Gastado ' + eur(s);
+  const bar = $('#budgetBar');
+  if(db.budget > 0){
+    const left = db.budget - s;
+    $('#budgetTxt').textContent = left >= 0 ? `Quedan ${eur(left)} de ${eur(db.budget)}` : `Os pasáis ${eur(-left)}`;
+    bar.firstElementChild.style.width = Math.min(100, s/db.budget*100) + '%';
+    bar.classList.toggle('over', left < 0);
+  } else {
+    $('#budgetTxt').textContent = 'Presupuesto sin definir';
+    bar.firstElementChild.style.width = '0';
+  }
+}
+
+function filtered(){
+  const q = $('#q').value.trim().toLowerCase();
+  const order = {alta:0, media:1, baja:2};
+  return items()
+    .filter(p => !q || [p.coleccion,p.tipo,p.nombre,p.idioma].join(' ').toLowerCase().includes(q))
+    .sort((a,b) => (bought(a)>=a.cantidad) - (bought(b)>=b.cantidad) || order[a.prioridad]-order[b.prioridad] || (a.coleccion||'').localeCompare(b.coleccion||'') || a.tipo.localeCompare(b.tipo));
+}
+
+function render(){
+  renderBudget();
+  // Conservar lo que se está escribiendo en el panel abierto si llega una actualización
+  const keepPrice = $('#evPrice')?.value, keepStand = $('#evStand')?.value;
+  const list = $('#list');
+  const shown = filtered();
+  if(!items().length){
+    list.innerHTML = `<div class="empty"><p>Todavía no hay nada en la lista. Añade lo que queréis buscar con sus precios online de referencia.</p>
+      <button class="btn energy" onclick="openProd()">Añadir el primer producto</button>
+      <p style="margin-top:14px"><button class="btn secondary small" onclick="loadDemo()">Ver con datos de ejemplo</button></p></div>`;
+    return;
+  }
+  if(!shown.length){ list.innerHTML = `<div class="empty"><p>Nada coincide con esa búsqueda.</p></div>`; return; }
+  list.innerHTML = shown.map(p => tab==='prep' ? prepCard(p) : eventCard(p)).join('');
+  if(openId && $('#evPrice')){
+    if(keepPrice){ $('#evPrice').value = keepPrice; liveVerdict(openId); }
+    if(keepStand) $('#evStand').value = keepStand;
+  }
+}
+
+function titleBlock(p){
+  const extra = [p.idioma, p.sobres ? p.sobres + (p.sobres>1?' sobres':' sobre') : ''].filter(Boolean).join(', ');
+  return `<span class="item-col">${esc(p.coleccion || 'Sin colección')}</span>
+    <span class="item-type">${esc(p.tipo)}${p.nombre ? ', ' + esc(p.nombre) : ''}</span>
+    ${extra ? `<div class="item-meta">${esc(extra)}</div>` : ''}`;
+}
+
+function prepCard(p){
+  const b = best(p), got = bought(p), age = ageDays(p);
+  const stale = b && age != null && age > (db.stale||7);
+  return `<div class="item ${got>=p.cantidad?'done':''}">
+    <button class="item-head" onclick="openProd('${p.id}')">
+      <span class="prio ${p.prioridad}"></span>
+      <span class="item-main">
+        ${titleBlock(p)}
+        <div class="tags">
+          <span class="tag">Queremos ${p.cantidad}</span>
+          ${got ? `<span class="tag ok">Comprados ${got}</span>` : ''}
+          ${stale ? `<span class="tag warn">Precio de hace ${age} días</span>` : ''}
+        </div>
+      </span>
+      <span class="item-price">${b ? `<b>${eur(b.total)}</b><small>${esc(b.tienda)}</small><br><small>máx. evento ${eur(limit(p))}</small>` : `<small>Sin precio</small>`}</span>
+    </button>
+  </div>`;
+}
+
+function eventCard(p){
+  const b = best(p), got = bought(p), open = openId === p.id;
+  const seen = live(p.vistos).sort((a,b)=>a.precio-b.precio);
+  const compras = live(p.compras);
+  return `<div class="item ${got>=p.cantidad?'done':''}">
+    <button class="item-head" onclick="toggle('${p.id}')" aria-expanded="${open}">
+      <span class="prio ${p.prioridad}"></span>
+      <span class="item-main">
+        ${titleBlock(p)}
+        <div class="tags">
+          ${got ? `<span class="tag ok">Comprados ${got} de ${p.cantidad}</span>` : `<span class="tag">Queremos ${p.cantidad}</span>`}
+          ${seen.length ? `<span class="tag">Más barato visto: ${eur(seen[0].precio)}${seen[0].stand ? ' en ' + esc(seen[0].stand) : ''}</span>` : ''}
+        </div>
+      </span>
+      <span class="item-price">${b ? `<small>Pagar como mucho</small><b>${eur(limit(p))}</b>` : `<small>Sin precio</small>`}</span>
+    </button>
+    ${open ? `<div class="check">
+      <div class="price-input"><input id="evPrice" inputmode="decimal" placeholder="0,00" aria-label="Precio en el stand" oninput="liveVerdict('${p.id}')"><span>€</span></div>
+      <div id="verdictBox"></div>
+      <div class="row"><input class="stand" id="evStand" placeholder="Stand o vendedor (opcional)"></div>
+      <div class="row">
+        <button class="btn secondary" onclick="markSeen('${p.id}')">Apuntar como visto</button>
+        <button class="btn energy" onclick="markBought('${p.id}')">Comprado a este precio</button>
+      </div>
+      <div class="refs">
+        ${(p.precios||[]).length ? `<h3>Referencias online</h3><table>${p.precios.map(x=>`<tr><td>${esc(x.tienda)}${x.envio?` (+${eur(x.envio)} envío)`:''}</td><td>${eur(x.precio+(x.envio||0))}</td></tr>`).join('')}</table>` : ''}
+        <p style="margin:8px 0 0"><a href="${cmUrl(p)}" target="_blank" rel="noopener">Ver precio actual en Cardmarket</a></p>
+        ${seen.length ? `<h3>Visto en el evento</h3><table>${seen.map(x=>`<tr><td>${esc(x.stand||'Stand sin nombre')} <button class="linkish" onclick="removeSeen('${p.id}','${x.id}')">quitar</button></td><td>${eur(x.precio)}</td></tr>`).join('')}</table>` : ''}
+        ${compras.length ? `<h3>Comprado</h3><table>${compras.map(x=>`<tr><td>${x.cantidad} × ${esc(x.stand||'stand')} <button class="linkish" onclick="undoBuy('${p.id}','${x.id}')">deshacer</button></td><td>${eur(x.precio*x.cantidad)}</td></tr>`).join('')}</table>` : ''}
+        ${p.notas ? `<p style="margin-top:10px">📝 ${esc(p.notas)}</p>` : ''}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+const find = id => db.items.find(x => x.id === id);
+function toggle(id){
+  openId = openId === id ? null : id;
+  render();
+  if(openId) setTimeout(()=>$('#evPrice')?.focus(), 30);
+}
+function liveVerdict(id){
+  const v = verdict(find(id), num($('#evPrice').value));
+  $('#verdictBox').innerHTML = v ? `<div class="verdict ${v.cls}"><strong>${v.title}</strong><p>${v.text}</p></div>` : '';
+}
+function markSeen(id){
+  const price = num($('#evPrice').value);
+  if(price == null){ toast('Escribe primero el precio del stand'); return; }
+  (find(id).vistos ||= []).push({id:uid(), precio:price, stand:$('#evStand').value.trim(), fecha:Date.now()});
+  $('#evPrice').value = ''; $('#evStand').value = '';
+  changed(); toast('Apuntado');
+}
+function markBought(id){
+  const price = num($('#evPrice').value);
+  if(price == null){ toast('Escribe primero el precio que habéis pagado'); return; }
+  (find(id).compras ||= []).push({id:uid(), precio:price, cantidad:1, stand:$('#evStand').value.trim(), fecha:Date.now()});
+  $('#evPrice').value = ''; $('#evStand').value = '';
+  changed(); toast('¡Comprado! 🎉');
+}
+function undoBuy(id, cid){ const c = find(id).compras.find(x=>x.id===cid); if(c){ c.borrado = true; changed(); } }
+function removeSeen(id, vid){ const v = find(id).vistos.find(x=>x.id===vid); if(v){ v.borrado = true; changed(); } }
+
+/* ---------- Formulario producto ---------- */
+let editingId = null;
+function priceRow(x={}){
+  const d = document.createElement('div');
+  d.className = 'price-row';
+  d.innerHTML = `<input list="storeList" placeholder="Cardmarket" value="${esc(x.tienda||'')}" data-k="tienda" aria-label="Tienda">
+    <input inputmode="decimal" placeholder="0,00" value="${x.precio??''}" data-k="precio" aria-label="Precio">
+    <input inputmode="decimal" placeholder="0,00" value="${x.envio??''}" data-k="envio" aria-label="Envío">
+    <button type="button" class="x" aria-label="Quitar tienda">×</button>`;
+  d.querySelector('.x').onclick = () => d.remove();
+  $('#priceRows').appendChild(d);
+}
+function updateCmLink(){
+  const f = $('#prodForm');
+  $('#cmLink').href = cmUrl({coleccion:f.elements.coleccion.value, tipo:f.elements.tipo.value});
+}
+function openProd(id){
+  editingId = id || null;
+  const p = id ? find(id) : null;
+  const f = $('#prodForm'); f.reset();
+  $('#prodTitle').textContent = p ? 'Editar producto' : 'Nuevo producto';
+  $('#delProd').hidden = !p;
+  $('#priceRows').innerHTML = '';
+  $('#colList').innerHTML = [...new Set(items().map(p=>p.coleccion).filter(Boolean))].map(c=>`<option>${esc(c)}</option>`).join('');
+  if(p){
+    ['coleccion','tipo','nombre','idioma','sobres','cantidad','prioridad','notas'].forEach(k => f.elements[k].value = p[k] ?? '');
+    (p.precios||[]).forEach(priceRow);
+  } else {
+    f.elements.sobres.value = PACKS[f.elements.tipo.value];
+  }
+  if(!$('#priceRows').children.length) priceRow({tienda:'Cardmarket'});
+  updateCmLink();
+  $('#prodDlg').showModal();
+}
+$('#tipoSel').onchange = e => { const s = $('#prodForm').elements.sobres; if(!editingId || !s.value) s.value = PACKS[e.target.value]; updateCmLink(); };
+$('#prodForm').elements.coleccion.oninput = updateCmLink;
+$('#addPrice').onclick = () => priceRow();
+$('#cancelProd').onclick = () => $('#prodDlg').close();
+$('#prodForm').onsubmit = e => {
+  const f = e.target;
+  const precios = [...document.querySelectorAll('#priceRows .price-row')].map(r => {
+    const g = k => r.querySelector(`[data-k=${k}]`).value;
+    return {tienda:g('tienda').trim()||'Online', precio:num(g('precio')), envio:num(g('envio'))||0};
+  }).filter(x => x.precio != null);
+  const now = Date.now();
+  const data = {
+    coleccion:f.elements.coleccion.value.trim(), tipo:f.elements.tipo.value, nombre:f.elements.nombre.value.trim(),
+    idioma:f.elements.idioma.value, sobres:num(f.elements.sobres.value)||0,
+    cantidad:Math.max(1, parseInt(f.elements.cantidad.value)||1),
+    prioridad:f.elements.prioridad.value, notas:f.elements.notas.value.trim(), precios, actualizado:now
+  };
+  const p = editingId && find(editingId);
+  if(p){
+    if(JSON.stringify(p.precios||[]) !== JSON.stringify(precios)) data.preciosFecha = now;
+    Object.assign(p, data);
+  } else {
+    db.items.push({id:uid(), compras:[], vistos:[], preciosFecha:now, ...data});
+  }
+  changed(); toast('Producto guardado');
+};
+$('#delProd').onclick = () => {
+  const p = find(editingId);
+  if(!p || !confirm(`¿Borrar ${p.coleccion} (${p.tipo}) de la lista?`)) return;
+  p.borrado = true; p.actualizado = Date.now();
+  $('#prodDlg').close(); changed();
+};
+
+/* ---------- Ajustes, exportar, importar ---------- */
+$('#openSettings').onclick = () => {
+  $('#setBudget').value = db.budget || ''; $('#setTol').value = db.tol ?? 5; $('#setStale').value = db.stale ?? 7;
+  renderShare(); $('#setDlg').showModal();
+};
+$('#closeSettings').onclick = () => $('#setDlg').close();
+$('#saveSettings').onclick = () => {
+  db.budget = num($('#setBudget').value)||0; db.tol = num($('#setTol').value) ?? 5; db.stale = parseInt($('#setStale').value)||7;
+  db.ajustesFecha = Date.now();
+  $('#setDlg').close(); changed(); toast('Ajustes guardados');
+};
+$('#exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lista-tcg-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+};
+$('#copyBtn').onclick = async () => {
+  const txt = filtered().map(p => { const b = best(p); return `• ${p.coleccion}, ${p.tipo}${p.nombre?' ('+p.nombre+')':''} x${p.cantidad}: ${b?`${eur(b.total)} en ${b.tienda}, máx. ${eur(limit(p))}`:'sin precio'}`; }).join('\n');
+  try{ await navigator.clipboard.writeText(txt); toast('Lista copiada'); }catch(e){ toast('No se pudo copiar'); }
+};
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async e => {
+  const file = e.target.files[0]; if(!file) return;
+  try{
+    const d = JSON.parse(await file.text());
+    if(!Array.isArray(d.items)) throw 0;
+    db = merge(db, d);
+    $('#setDlg').close(); changed(); toast('Lista importada y juntada con la actual');
+  }catch(err){ toast('Ese archivo no es una lista válida'); }
+  e.target.value = '';
+};
+$('#wipeBtn').onclick = () => {
+  if(!confirm(code ? '¿Borrar todos los productos? Se borrarán también en el otro móvil.' : '¿Borrar toda la lista y las compras?')) return;
+  const now = Date.now();
+  db.items.forEach(p => { p.borrado = true; p.actualizado = now; });
+  $('#setDlg').close(); changed();
+};
+
+function loadDemo(){
+  const now = Date.now();
+  const mk = (o) => ({id:uid(), nombre:'', compras:[], vistos:[], actualizado:now, preciosFecha:now, notas:'Precios de ejemplo, cámbialos por los reales', ...o});
+  db.items.push(
+    mk({coleccion:'Evoluciones Prismáticas', tipo:'ETB', idioma:'ES', sobres:9, cantidad:1, prioridad:'alta', precios:[{tienda:'Cardmarket',precio:85,envio:6},{tienda:'Tienda local',precio:95,envio:0}]}),
+    mk({coleccion:'Rivales Predestinados', tipo:'Booster box', idioma:'ES', sobres:36, cantidad:1, prioridad:'media', precios:[{tienda:'Cardmarket',precio:150,envio:9}]}),
+    mk({coleccion:'Megaevolución', tipo:'Sobre', idioma:'ES', sobres:1, cantidad:10, prioridad:'baja', precios:[{tienda:'Cardmarket',precio:5,envio:1.5}], preciosFecha:now-12*DAY})
+  );
+  if(!db.budget){ db.budget = 400; db.ajustesFecha = now; }
+  changed();
+}
+
+/* ---------- Pestañas y búsqueda ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  tab = b.dataset.tab; openId = null;
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x===b));
+  $('#addBtn').hidden = tab === 'event';
+  render();
+});
+$('#q').oninput = render;
+$('#addBtn').onclick = () => openProd();
+
+let tt; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),1800); }
+render();
+if(code){ setStatus('busy','Conectando…'); sync(); }
+</script>
+</body>
+</html>
